@@ -12,6 +12,8 @@ class Order(BaseModel): #客人的點餐單
     ice: str
     add: List[str]=[]
 
+
 class OrderResponse(Order): #回傳收據
     id: int
     total_price: int
+    created_at: str
