@@ -1,0 +1,241 @@
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>茶之魔手飲料點餐系統</title>
+<style>
+    /* 頁面整體樣式 */
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f7f4; color: #2c3e50; }
+    h1 { color: #2e7d32; } /* 標題顏色 */
+
+    /* 按鈕樣式 */
+    button { padding: 8px 15px; margin: 5px; background-color: #388e3c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #2e7d32; } /* 滑鼠移上去變深綠 */
+
+    /* 表格樣式 */
+    table { border-collapse: collapse; margin-top: 10px; width: 100%; background: #fff; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+    th { background-color: #c8e6c9; }
+
+    /* 訂單卡片樣式 */
+    .card { border: 1px solid #ccc; padding: 15px; margin: 10px 0; border-radius: 5px; background: #fff; }
+    .card h3 { margin: 0; color: #2e7d32; }
+
+    /* 價格顯示 */
+    #pricePreview { font-weight: bold; color: #e67e22; margin-top: 10px; }
+
+    /* Logo */
+    #logo { display: block; margin: 0 auto 20px; width: 200px; }
+
+    /* 總金額顯示 */
+    #totalAmount { font-weight: bold; color: #d32f2f; margin-top: 15px; }
+</style>
+</head>
+<body onload="loadMenu()"> <!-- 頁面載入時自動載入菜單 -->
+
+  <!-- Logo圖片 -->
+  <img id="logo" src="https://www.teamagichand.com.tw/images/logo2.png" alt="茶之魔手 Logo">
+
+  <!-- 系統標題 -->
+  <h1>🍹 茶之魔手飲料點餐系統</h1>
+
+  <!-- 菜單區塊：JS 會載入菜單表格 -->
+  <h2>菜單</h2>
+  <div id="menu"></div>
+
+  <!-- 新增訂單表單 -->
+  <h2>新增訂單</h2>
+  <form id="orderForm">
+    飲料名稱: 
+    <select id="drinkSelect" name="drink_name"></select><br><br>
+
+    尺寸: 
+    <select id="sizeSelect" name="size">
+      <option value="M">M</option>
+      <option value="L">L</option>
+    </select><br><br>
+
+    糖量: 
+    <select name="sugar">
+      <option>正常糖</option>
+      <option>半糖</option>
+      <option>少糖</option>
+      <option>微糖</option>
+      <option>無糖</option>
+    </select><br><br>
+
+    冰量: 
+    <select name="ice">
+      <option>正常冰</option>
+      <option>少冰</option>
+      <option>微冰</option>
+      <option>去冰</option>
+      <option>常溫</option>
+      <option>熱</option>
+    </select><br><br>
+
+    加料: 
+    <select id="toppingSelect" name="add" multiple>
+      <option>珍珠</option>
+      <option>波霸</option>
+      <option>QQ</option>
+      <option>椰果</option>
+      <option>寒天</option>
+      <option>藍莓凍</option>
+      <option>布丁</option>
+    </select><br><br>
+
+    <!-- 即時計算價格顯示 -->
+    <div id="pricePreview">目前總價：0 元</div>
+
+    <!-- 送出訂單按鈕 -->
+    <button type="submit">送出訂單</button>
+    <!-- 清除表單按鈕 -->
+    <button type="button" onclick="clearForm()">清除表單</button>
+  </form>
+
+  <!-- 顯示送出訂單的收據 -->
+  <div id="orderResult"></div>
+
+  <!-- 訂單列表區塊 -->
+  <h2>所有訂單</h2>
+  <div id="orders"></div>
+
+  <!-- 總金額統計 -->
+  <div id="totalAmount">目前所有訂單總金額：0 元</div>
+<script>
+let menuData = {}; // 用來存放從後端拿到的菜單資料
+
+// 載入菜單，並更新飲料下拉選單
+async function loadMenu() {
+  const res = await fetch('/menu');       // 向後端請求菜單資料
+  menuData = await res.json();            
+
+  let html = '';                          // 用來組合菜單表格的 HTML
+  let drinkOptions = '';                  // 用來組合下拉選單的選項
+
+  // 迴圈跑每個分類
+  for (const category in menuData) {
+    // 每個分類先加上標題和表格表頭
+    html += `<h3>${category}</h3><table><tr><th>飲料</th><th>M</th><th>L</th></tr>`;
+    
+    // 再跑分類裡的每個飲料
+    for (const drink in menuData[category]) {
+      const prices = menuData[category][drink]; // 取得 M/L 價格
+      // 把飲料和價格加到表格
+      html += `<tr><td>${drink}</td><td>${prices.M}</td><td>${prices.L}</td></tr>`;
+      // 把飲料名稱加到下拉選單
+      drinkOptions += `<option>${drink}</option>`;
+    }
+    html += '</table>'; // 結束這個分類的表格
+  }
+
+  // 把組好的 HTML 放到菜單區塊
+  document.getElementById('menu').innerHTML = html;
+  // 把飲料選項放到下拉選單
+  document.getElementById('drinkSelect').innerHTML = drinkOptions;
+  // 預設選第一個飲料
+  document.getElementById('drinkSelect').selectedIndex = 0;
+  // 更新即時價格顯示
+  updatePricePreview();
+}
+
+// 即時計算價格
+function updatePricePreview() {
+  const drink = document.getElementById('drinkSelect').value; // 取得選到的飲料
+  const size = document.getElementById('sizeSelect').value;   // 取得選到的尺寸
+  let basePrice = 0;
+
+  // 從 menuData 找出該飲料的基本價格
+  for (const category in menuData) {
+    if (menuData[category][drink]) {
+      basePrice = menuData[category][drink][size];
+      break;
+    }
+  }
+
+  // 計算加料，每樣加料 +10 元
+  const toppings = Array.from(document.getElementById('toppingSelect').selectedOptions).map(o => o.value);
+  const total = (basePrice || 0) + toppings.length * 10;
+
+  // 更新頁面上的價格顯示
+  document.getElementById('pricePreview').innerText = `目前總價：${total} 元`;
+}
+
+// 當飲料、尺寸、加料改變時，重新計算價格
+document.getElementById('drinkSelect').addEventListener('change', updatePricePreview);
+document.getElementById('sizeSelect').addEventListener('change', updatePricePreview);
+document.getElementById('toppingSelect').addEventListener('change', updatePricePreview);
+
+// 表單送出事件：新增訂單
+document.getElementById('orderForm').addEventListener('submit', async (e) => {
+  e.preventDefault(); // 阻止表單預設行為（避免頁面刷新）
+
+  // 收集表單資料
+  const fd = new FormData(e.target);
+  const payload = {
+    drink_name: fd.get('drink_name'),
+    size: fd.get('size'),
+    sugar: fd.get('sugar'),
+    ice: fd.get('ice'),
+    add: fd.getAll('add')
+  };
+
+  // 呼叫後端 API 新增訂單
+  const res = await fetch('/order', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+
+  // 顯示訂單收據
+  document.getElementById('orderResult').innerHTML = `
+    <div class="card">
+      <h3>訂單 #${data.id}</h3>
+      <p>飲料：${data.drink_name} (${data.size})</p>
+      <p>糖量：${data.sugar}、冰量：${data.ice}</p>
+      <p>加料：${data.add.join(', ') || '無'}</p>
+      <strong>總價：${data.total_price} 元</strong>
+    </div>
+  `;
+
+  clearForm();    // 清除表單
+  loadOrders();   // 更新訂單列表
+});
+
+// 清除表單
+function clearForm() {
+  document.getElementById('orderForm').reset(); // 重置表單
+  document.getElementById('pricePreview').innerText = "目前總價：0 元"; // 重置價格顯示
+}
+
+// 載入所有訂單並顯示總金額
+async function loadOrders() {
+  const res = await fetch('/orders'); // 呼叫後端 API 取得所有訂單
+  const data = await res.json();
+  let html = '';
+  let totalAmount = 0;
+
+  // 把每筆訂單顯示成卡片
+  data.forEach(o => {
+    totalAmount += o.total_price;
+    html += `
+      <div class="card">
+        <h3>訂單 #${o.id}</h3>
+        <p>飲料：${o.drink_name} (${o.size})</p>
+        <p>糖量：${o.sugar}、冰量：${o.ice}</p>
+        <p>加料：${o.add.join(', ') || '無'}</p>
+        <strong>總價：${o.total_price} 元</strong>
+      </div>
+    `;
+  });
+
+  // 更新訂單列表和總金額
+  document.getElementById('orders').innerHTML = html;
+  document.getElementById('totalAmount').innerText = `目前所有訂單總金額：${totalAmount} 元`;
+}
+</script>
+</body>
+</html>
