@@ -188,11 +188,11 @@
       <div class="card">
         <form id="orderForm">
           <p>選擇飲料：
-      <select id="categorySelect">
+      <select id="categorySelect" required>
         <option value="" disabled selected hidden>請選擇系列...</option>
       </select>
     
-      <select name="drink_name" id="drinkSelect">
+      <select name="drink_name" id="drinkSelect" required>
         <option value="" disabled selected hidden>請先選擇系列</option>
       </select>
       </p>
@@ -203,13 +203,13 @@
             </select>
           </p>
           <p>糖：
-  <select name="sugar" id="sugarSelect">
+  <select name="sugar" id="sugarSelect" required>
     <option value="" disabled selected hidden>請選擇糖量</option>
   </select>
 </p>
 
 <p>冰：
-  <select name="ice" id="iceSelect">
+  <select name="ice" id="iceSelect" required>
     <option value="" disabled selected hidden>請選擇冰量</option>
   </select>
 </p>
