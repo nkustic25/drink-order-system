@@ -6,7 +6,6 @@
   <title>點餐系統</title>
   <link href='https://cdn.boxicons.com/3.0.6/fonts/basic/boxicons.min.css' rel='stylesheet'>
   <style>
-    /* 1. 導覽列與基礎樣式保持不變 */
     .navbar {
       position: fixed; 
       top: 0; left: 0;
@@ -21,7 +20,7 @@
     .nav-center img { height: 35px; display: block; filter: brightness(1.2); }
     .nav-right { flex: 1; display: flex; justify-content: flex-end; align-items: center; height: 100%; }
     
-    /* 按鈕與圖標樣式 */
+    /*按鈕與圖標樣式*/
     .nav-btn {
       font-size: 30px;
       background: none; border: none; padding: 0 5px 12px 5px;
@@ -38,21 +37,20 @@
     .nav-right .api-link { color: #000000; text-decoration: none; display: flex; align-items: center; }
     .api-icon { width: 35px; height: 35px; }
 
-    /* 分層控制 CSS */
+    /* 分層控制CSS*/
     body { padding-top: 85px; margin: 0; font-family: sans-serif; background-color: #f9f9f9; }
     .container { padding: 0 20px; }
-    .page { display: none; animation: fadeIn 0.3s ease; } /* 預設全部隱藏 */
-    .active { display: block; } /* 顯示當前分頁 */
+    .page { display: none; animation: fadeIn 0.3s ease; } 
+    .active { display: block; } /*顯示當前分頁*/
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    /* 表格與卡片樣式 */
     .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 15px; }
     .topping-group {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-    align-items: center; /* 確保同一行的物件中心點對齊 */
+    align-items: center;
 }
 
 .topping-item {
@@ -61,24 +59,23 @@
     border: 1px solid #ccc;
     border-radius: 20px;
     transition: all 0.3s;
-    /* 讓每個按鈕有最小寬度，排列會更像格狀 */
     min-width: 100px; 
     text-align: center;
-    box-sizing: border-box; /* 確保 padding 不會撐大寬度 */
+    box-sizing: border-box; 
 }
-/* 當勾選時，改變背景顏色 */
+/*當勾選時 改變背景顏色*/
 .topping-item:has(input:checked) {
   background-color: #556d6a;
   color: white;
   border-color: #597573;
 }
 
-/* 隱藏原始的打勾小框框 */
+
 .topping-item input {
   display: none;
 }
 
-/* 類別大標題 (保持深灰色) */
+
 .category-title {
     background-color: #4a4a4a;
     color: white;
@@ -89,10 +86,9 @@
     letter-spacing: 2px;
 }
 
-/* 表格表頭 (只有 中 / 大) */
 .menu-header {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 跟下面的兩欄對齊 */
+    grid-template-columns: 1fr 1fr; /*跟下面的兩欄對齊*/
     background-color: #555;
     color: #eee;
     font-size: 0.8rem;
@@ -107,7 +103,7 @@
 }
 
 .ml-tag {
-    letter-spacing: 12px; /* 讓 M 跟 L 拉開距離，對準下面的數字 */
+    letter-spacing: 12px; /* 讓M跟L對準下面的數字*/
     margin-right: 5px;
 }
 
@@ -115,11 +111,11 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 15px;            /* 使用較舒適的垂直間距 */
+    padding: 12px 15px;       
     background-color: #ffffff;
     border-bottom: 1px solid #eee;
     transition: background-color 0.2s;
-    min-height: 25px;              /* 改用 min-height，比固定 height 更有彈性，字體大時不會溢出 */
+    min-height: 25px;             
 }
 .drink-row:nth-child(even) {
     background-color: #fcfcfc;
@@ -132,8 +128,8 @@
 
 .menu-body {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* 強制分成兩欄 */
-    column-gap: 1px;                /* 中間線的寬度 */
+    grid-template-columns: 1fr 1fr; /*強制分成兩欄*/
+    column-gap: 1px;                
 }
 .price-box {
     width: 30px;
@@ -141,7 +137,7 @@
     color: #444;
     font-size: 0.95rem;
 }
-/* 5. 價格群組的樣式 */
+/*價格群組的樣式*/
 .drink-item-price-group {
     display: flex;
     gap: 15px;
@@ -236,7 +232,7 @@
 <script>
     let menuData = {};
 
-    // --- 分頁切換邏輯 ---
+    //分頁切換
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
@@ -244,20 +240,20 @@
         if(pageId === 'historyPage') loadOrders();
     }
 
-    // 1. 載入飲品菜單與系列
+    //載入飲品菜單
 async function loadMenu() {
     try {
         const response = await fetch('http://127.0.0.1:8000/menu');
         const data = await response.json();
         menuData = data; 
 
-        // --- 1. 渲染菜單頁面 (升級為官網表格風格) ---
+        //菜單頁面
         const menuContainer = document.getElementById('menu');
         menuContainer.innerHTML = ''; 
 
         for (const category in data) {
             const section = document.createElement('div');
-            section.className = 'menu-category-card'; // 套用新的卡片樣式
+            section.className = 'menu-category-card';
             let html = `
                 <h3 class="category-title">${category}</h3>
                 <div class="menu-header">
@@ -267,7 +263,7 @@ async function loadMenu() {
                 <div class="menu-body">
             `;
             
-            // 遍歷該系列的所有飲品
+            //遍歷該系列的所有飲品
             for (const drink in data[category]) {
                 const prices = data[category][drink];
                 html += `
@@ -280,12 +276,12 @@ async function loadMenu() {
             </div>                `;
             }
             
-            html += `</div>`; // 關閉 menu-body
+            html += `</div>`;
             section.innerHTML = html;
             menuContainer.appendChild(section);
         }
 
-        // --- 2. 填充系列下拉選單 (保持你原本的邏輯) ---
+        //下拉選單
         const categorySelect = document.getElementById('categorySelect');
         categorySelect.innerHTML = '<option value="" disabled selected hidden>請選擇系列...</option>';        
         Object.keys(data).forEach(cat => {
@@ -301,13 +297,13 @@ async function loadMenu() {
         console.error("載入菜單失敗", error);
     }
 }      
-    // 2. 載入冰塊、糖量、加料選項 (從 order_options 抓)
+    //載入冰塊、糖量、加料選項 (從 order_options 抓)
     async function loadOptions() {
         try {
             const response = await fetch('http://127.0.0.1:8000/options');
             const options = await response.json();
 
-            // 填充糖量
+            //糖
             const sugarSelect = document.getElementById('sugarSelect');
             sugarSelect.innerHTML = '<option value="" disabled selected hidden>請選擇糖量</option>';
             options["糖量"].forEach(level => {
@@ -316,7 +312,7 @@ async function loadMenu() {
                 sugarSelect.appendChild(opt);
             });
 
-            // 填充冰量
+            //冰
             const iceSelect = document.getElementById('iceSelect');
             iceSelect.innerHTML = '<option value="" disabled selected hidden>請選擇冰量</option>';
             options["冰量"].forEach(level => {
@@ -325,7 +321,7 @@ async function loadMenu() {
                 iceSelect.appendChild(opt);
             });
 
-            // 填充加料區
+            //加料區
             const toppingContainer = document.getElementById('toppingSelect');
             toppingContainer.innerHTML = ''; 
             options["加料區"].forEach(item => {
@@ -361,7 +357,7 @@ function updatePricePreview() {
     const size = document.getElementById('sizeSelect').value;
     let basePrice = 0;
 
-    // 直接定位：menuData[系列][飲品][尺寸]
+    //直接定位：menuData[系列][飲品][尺寸]
     if (category && drink && menuData[category] && menuData[category][drink]) {
         basePrice = menuData[category][drink][size] || 0;
     }
@@ -371,12 +367,12 @@ function updatePricePreview() {
     
     document.getElementById('pricePreview').innerText = `目前總價：${total} 元`;
 }
-    // 監聽器
+    //監聽器
     document.getElementById('drinkSelect').addEventListener('change', updatePricePreview);
     document.getElementById('sizeSelect').addEventListener('change', updatePricePreview);
     document.getElementById('toppingSelect').addEventListener('change', updatePricePreview);
 
-    // 表單提交
+    //表單提交
     document.getElementById('orderForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(e.target);
@@ -385,7 +381,7 @@ function updatePricePreview() {
             size: fd.get('size'),
             sugar: fd.get('sugar'),
             ice: fd.get('ice'),
-            add: fd.getAll('topping') // 這裡要對應 input 的 name
+            add: fd.getAll('topping') //這裡要對應input的name
         };
 
         const res = await fetch('http://127.0.0.1:8000/order', {
@@ -402,23 +398,23 @@ function updatePricePreview() {
     async function loadOrders() {
         const res = await fetch('http://127.0.0.1:8000/orders');
         const data = await res.json();
-        // 1. 依日期分類
+        //依日期分類
     const groupedOrders = data.reduce((acc, order) => {
-        // order.created_at 是 "2023-12-31 17:30:00"
+        //order.created_at是"2023-12-31 17:30:00"
         const [date, time] = order.created_at.split(' '); 
         if (!acc[date]) acc[date] = [];
         acc[date].push({ ...order, timeOnly: time });
         return acc;
     }, {});
 
-    // 2. 排序日期 (最新的在最上面)
+    //排序日期 (最新的在最上面)
     const sortedDates = Object.keys(groupedOrders).sort((a, b) => b.localeCompare(a));
 
     let html = '';
     let totalAmount = 0;
 
     sortedDates.forEach(date => {
-        // 渲染日期區塊標題
+        //渲染日期區塊標題
         html += `<h3 class="date-header" style="margin: 20px 0 10px; color: #555;">📅 ${date}</h3>`;
         
         groupedOrders[date].forEach(o => {
@@ -439,8 +435,7 @@ function updatePricePreview() {
     document.getElementById('orders').innerHTML = html || '<p>尚無訂單紀錄</p>';
     document.getElementById('totalAmount').innerText = `目前所有訂單總金額：${totalAmount} 元`;
 }
-    // 初始化載入
-// 初始化載入
+    //初始化載入
 window.onload = () => {
     loadMenu();
     loadOptions();
